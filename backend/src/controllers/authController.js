@@ -11,14 +11,16 @@ exports.googleCallback = async (req, res) => {
   if (!code) return res.status(400).json({ message: "No code provided" });
 
   try {
+    // ดึงข้อมูลจาก Google
     const { id_token, access_token } = await getGoogleTokens(code);
     const userInfo = jwt.decode(id_token);
 
-    // Generate JWT
+    // สร้าง JWT
     const token = jwt.sign({ email: userInfo.email, name: userInfo.name }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "1h", // กำหนดเวลาหมดอายุของ token
     });
 
+    // ส่ง token กลับไปยัง frontend
     res.status(200).json({ token, user: userInfo });
   } catch (error) {
     console.error("Error in Google Callback:", error);
@@ -26,6 +28,11 @@ exports.googleCallback = async (req, res) => {
   }
 };
 
+// ตรวจสอบ user profile
 exports.getUserProfile = (req, res) => {
-  res.status(200).json({ user: req.user });
+  // หาก token ถูกตรวจสอบและยืนยันแล้ว ให้ส่งข้อมูลผู้ใช้กลับ
+  if (req.user) {
+    return res.status(200).json({ user: req.user });
+  }
+  return res.status(401).json({ message: "Unauthorized" });
 };

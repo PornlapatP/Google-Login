@@ -7,6 +7,6 @@ const router = express.Router();
 // Routes
 router.get("/google", googleLogin);
 router.get("/google/callback", googleCallback);
-router.get("/profile", verifyToken, getUserProfile);
+router.get("/profile", verifyToken, getUserProfile);  // ใช้ verifyToken middleware
 
 module.exports = router;
